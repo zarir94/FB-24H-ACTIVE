@@ -83,7 +83,9 @@ def admin():
                 return resp
         return render_template('login.html')
     
-    return render_template('panel.html')
+    all_acc = Users.query.order_by(Users.id.desc()).all()
+
+    return render_template('panel.html', all_acc = all_acc)
 
 def read_only_view(request):  # Search By ID
     fb_id = request.args.get('id')

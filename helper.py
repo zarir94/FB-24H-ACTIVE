@@ -29,7 +29,7 @@ def convert_to_dict(cookie: str) -> dict:
         return None
 
 
-def get_profile_id(cookies: str, profile_url: str = 'https://mbasic.facebook.com/me') -> str | bool:
+def get_profile_id(cookies: str, profile_url: str = 'https://mbasic.facebook.com/me'):
     try:
         resp = get(convert_to_mbasic(profile_url),
                    cookies=convert_to_dict(cookies))

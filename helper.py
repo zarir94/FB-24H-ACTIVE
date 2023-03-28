@@ -175,12 +175,16 @@ def check_if_logined(session):
     if not ':' in session:
         return False
     username, password = session.split(':')
-    if username != admin_user and password != admin_pass:
+    if username != admin_user:
+        return False
+    elif password != admin_pass:
         return False
     return True
 
 def check_user_pass(username, password):
-    if hash_string(username) != admin_user and hash_string(password) != admin_pass:
+    if hash_string(username) != admin_user:
+        return False
+    elif hash_string(password) != admin_pass:
         return False
     return True
 

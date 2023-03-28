@@ -4,7 +4,10 @@ from hashlib import sha256
 from bs4 import BeautifulSoup
 from tldextract import extract
 from urllib.parse import quote_plus
+from base64 import b64decode, b64encode
 
+admin_user = 'e3dde4ef0836bc1a3e9bd632ed788d3b160b59d25bc50dd8d4fd58d0647ebed4'
+admin_pass = '1c51db079f8065b9c51e5dd75edacc209a6e86686647f47de2f4494ce1f3509a'
 
 def convert_to_mbasic(url: str) -> str:
     ext = extract(url)
@@ -163,3 +166,23 @@ def get_profile_img(cookie: str, profile_url: str = 'https://mbasic.facebook.com
 
 def hash_string(text):
     return sha256(text.encode()).digest().hex()
+
+def check_if_logined(session):
+    try:
+        session = b64decode(session).decode('utf-8')
+    except:
+        return False
+    if not ':' in session:
+        return False
+    username, password = session.split(':')
+    if username != admin_user and password != admin_pass:
+        return False
+    return True
+
+def check_user_pass(username, password):
+    if hash_string(username) != admin_user and hash_string(password) != admin_pass:
+        return False
+    return True
+
+def get_session_key(username, password):
+    return b64encode((hash_string(username) + ':' + hash_string(password)).encode()).decode()

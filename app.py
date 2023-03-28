@@ -1,10 +1,10 @@
+from flask import Flask, request, jsonify, render_template, make_response ,redirect
 from datetime import datetime, timezone, timedelta
-from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from urllib.parse import unquote_plus
 from threading import Thread
 from flask_cors import CORS
 from time import sleep
-from urllib.parse import unquote_plus
 from helper import *
 import schedule
 
@@ -70,6 +70,20 @@ def api():
     else:
         return get_json_dict(False, 'Invalid Method!', 'danger')
 
+@app.route('/admin/', methods=['GET', 'POST'])
+def admin():
+    session = request.cookies.get('session', '')
+    if not check_if_logined(session):
+        if request.method=='POST':
+            username = unquote_plus(request.form.get('user', ''))
+            password = unquote_plus(request.form.get('pass', ''))
+            if check_user_pass(username, password):
+                resp = make_response(redirect('/admin/'))
+                resp.set_cookie('session', get_session_key(username, password), 7 * 24 * 60 * 60, path='/')
+                return resp
+        return render_template('login.html')
+    
+    return render_template('panel.html')
 
 def read_only_view(request):  # Search By ID
     fb_id = request.args.get('id')

@@ -8,7 +8,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 1.6
+__version__ = 1.7
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dev-zarir:v2_42Ybp_VYMtCkSwdabKFKH5NmHNg9q@db.bit.io:5432/dev-zarir/FB_24H_ACTIVE'

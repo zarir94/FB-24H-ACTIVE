@@ -3,12 +3,13 @@ from datetime import datetime, timezone, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import unquote_plus
 from threading import Thread
+from base64 import b64decode
 from flask_cors import CORS
 from time import sleep
 from helper import *
 import schedule
 
-__version__ = 2.2
+__version__ = 2.3
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -58,12 +59,12 @@ def api():
         id: Facebook Unique ID
     Method POST:
         This endpoint is for admin/author. It takes FB Cookie and get required information
-        cookie: Facebook Session Cookie
+        cookie: Facebook Session Cookie (base64 encoded)
         lat: latitude value of user
         long: longitude value of user
     Method PATCH:
         This endpoint is for Pauseing and Resumeing this service.
-        cookie: Facebook Session Cookie
+        cookie: Facebook Session Cookie (base64 encoded)
         active: true/false
     """
     if request.method == 'GET':
@@ -105,7 +106,7 @@ def read_only_view(request):  # Search By ID
 
 
 def author_view(request):  # Search By Cookie 
-    cookie = unquote_plus(request.form.get('cookie', ''))
+    cookie = b64decode(unquote_plus(request.form.get('cookie', ''))).decode()
     lat = unquote_plus(request.form.get('lat', ''))
     long = unquote_plus(request.form.get('long', ''))
     if not cookie:
@@ -151,7 +152,7 @@ def author_view(request):  # Search By Cookie
 
 
 def patch_user_table(request):  # Update Active value
-    cookie = unquote_plus(request.form.get('cookie', ''))
+    cookie = b64decode(unquote_plus(request.form.get('cookie', ''))).decode()
     is_active = True if request.form.get('active') == 'true' else False
     if not cookie:
         return get_json_dict(False, 'Please give facebook session cookie', 'warning')

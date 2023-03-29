@@ -8,7 +8,8 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 1.8
+__version__ = 1.9
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dev-zarir:v2_42Ybp_VYMtCkSwdabKFKH5NmHNg9q@db.bit.io:5432/dev-zarir/FB_24H_ACTIVE'
@@ -44,7 +45,9 @@ class DummyClass:
 
 @app.route('/')
 def index():
-    return '<h2>Server is Up! Version: ' + str(__version__) + '</h2>'
+    if request.args.get('ver') != None:
+        return str(__version__)
+    return '<title>FB 24H Active Bot</title><h2>Server is Up! Version: ' + str(__version__) + '</h2>'
 
 
 @app.route('/api', methods=['GET', 'POST', 'PATCH'])

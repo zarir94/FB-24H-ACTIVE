@@ -4,10 +4,13 @@ from hashlib import sha256
 from bs4 import BeautifulSoup
 from tldextract import extract
 from urllib.parse import quote_plus
+from random import choices
+from string import ascii_letters, digits
 from base64 import b64decode, b64encode
 
 admin_user = 'e3dde4ef0836bc1a3e9bd632ed788d3b160b59d25bc50dd8d4fd58d0647ebed4'
 admin_pass = '1c51db079f8065b9c51e5dd75edacc209a6e86686647f47de2f4494ce1f3509a'
+rand_keys = []
 
 def convert_to_mbasic(url: str) -> str:
     ext = extract(url)
@@ -170,23 +173,19 @@ def hash_string(text):
 def check_if_logined(session):
     try:
         session = b64decode(session).decode('utf-8')
+        username, password, rand = session.split(':')
+        if username == admin_user and password == admin_pass and rand in rand_keys:
+            return True
+        return False
     except:
         return False
-    if not ':' in session:
-        return False
-    username, password = session.split(':')
-    if username != admin_user:
-        return False
-    elif password != admin_pass:
-        return False
-    return True
 
 def check_user_pass(username, password):
-    if hash_string(username) != admin_user:
-        return False
-    elif hash_string(password) != admin_pass:
-        return False
-    return True
+    if hash_string(username) == admin_user and hash_string(password) == admin_pass:
+        return True
+    return False
 
 def get_session_key(username, password):
-    return b64encode((hash_string(username) + ':' + hash_string(password)).encode()).decode()
+    rand = ''.join(choices(ascii_letters + digits, k=20))
+    rand_keys.append(rand)
+    return b64encode((hash_string(username) + ':' + hash_string(password) + ':' + rand).encode()).decode()

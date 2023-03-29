@@ -9,7 +9,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 2.3
+__version__ = 2.4
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -37,7 +37,7 @@ class Users (db.Model):
     is_active = db.Column(db.Boolean, default=False)
     lat = db.Column(db.String(20))
     long = db.Column(db.String(20))
-    last_access = db.Column(db.Date, default=get_bd_time)
+    last_access = db.Column(db.DateTime, default=get_bd_time)
 
 
 class DummyClass:

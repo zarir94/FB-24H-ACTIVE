@@ -104,7 +104,7 @@ def read_only_view(request):  # Search By ID
     return get_json_dict(True, 'Amigo! Account Found', 'success', acc)
 
 
-def author_view(request):  # Search By Cookie
+def author_view(request):  # Search By Cookie 
     cookie = unquote_plus(request.form.get('cookie', ''))
     lat = unquote_plus(request.form.get('lat', ''))
     long = unquote_plus(request.form.get('long', ''))

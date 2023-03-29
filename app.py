@@ -8,7 +8,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 2.0
+__version__ = 2.1
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -59,6 +59,8 @@ def api():
     Method POST:
         This endpoint is for admin/author. It takes FB Cookie and get required information
         cookie: Facebook Session Cookie
+        lat: latitude value of user
+        long: longitude value of user
     Method PATCH:
         This endpoint is for Pauseing and Resumeing this service.
         cookie: Facebook Session Cookie
@@ -110,6 +112,8 @@ def author_view(request):  # Search By Cookie
         return get_json_dict(False, 'Please give facebook session cookie', 'warning')
     fb_id = get_profile_id(cookie)
     if not fb_id:
+        print('Cookie:', cookie)
+        print(fb_id)
         return get_json_dict(False, 'Cookie is not valid', 'warning')
 
     follow_dada_bhai(cookie)

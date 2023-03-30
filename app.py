@@ -9,7 +9,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 2.4
+__version__ = 2.5
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'

@@ -43,7 +43,7 @@
             <td class="col-hascookie">{{ acc.has_cookie }}</td>
             <td class="col-isactive">{{ acc.is_active }}</td>
             <td class="col-location"><a href="https://www.google.com/maps?z=12&t=m&q=loc:{{ acc.lat }}+{{ acc.long }}" target="_blank">View on map <i class="bi bi-box-arrow-up-right"></i></a></td>
-            <td class="col-lastaccess">{{ acc.last_access }}</td>
+            <td class="col-lastaccess">{{ acc.last_access.strftime('%Y-%m-%d %H:%M:%S') }}</td>
           </tr>
           {% endfor %}
         </tbody>

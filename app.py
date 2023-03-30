@@ -1,15 +1,16 @@
 from flask import Flask, request, jsonify, render_template, make_response ,redirect
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import unquote_plus
 from threading import Thread
 from base64 import b64decode
 from flask_cors import CORS
+from requests import get
 from time import sleep
 from helper import *
 import schedule
 
-__version__ = 2.5
+__version__ = 2.6
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -21,7 +22,10 @@ CORS(app)
 
 
 def get_bd_time():
-    return datetime.now(tz=timezone(timedelta(hours=6)))
+    resp = get('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Dhaka')
+    resp_json = resp.json()
+    time = f"{resp_json['day']}-{resp_json['month']}-{resp_json['year']} at {datetime.strptime(str(resp_json['hour']) + ':' + str(resp_json['minute']) + ':' + str(resp_json['seconds']), '%H:%M:%S').strftime('%I:%M:%S %p')}"
+    return time
 
 
 class Users (db.Model):
@@ -37,7 +41,7 @@ class Users (db.Model):
     is_active = db.Column(db.Boolean, default=False)
     lat = db.Column(db.String(20))
     long = db.Column(db.String(20))
-    last_access = db.Column(db.DateTime, default=get_bd_time)
+    last_access = db.Column(db.String(100), default=get_bd_time)
 
 
 class DummyClass:

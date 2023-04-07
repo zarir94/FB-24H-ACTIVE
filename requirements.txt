@@ -8,3 +8,5 @@ schedule==1.1.0
 tldextract==3.4.0
 waitress==2.1.2
 psycopg2==2.9.5
+Free-Proxy==1.1.1
+lxml==4.9.2

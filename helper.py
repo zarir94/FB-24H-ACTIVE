@@ -1,16 +1,18 @@
-import re
-from requests import get
-from hashlib import sha256
-from bs4 import BeautifulSoup
-from tldextract import extract
-from urllib.parse import quote_plus
-from random import choices
 from string import ascii_letters, digits
 from base64 import b64decode, b64encode
+from urllib.parse import quote_plus
+from tldextract import extract
+from bs4 import BeautifulSoup
+from hashlib import sha256
+from random import choice, choices
+from requests import get
+from json import load
+import re
 
 admin_user = 'e3dde4ef0836bc1a3e9bd632ed788d3b160b59d25bc50dd8d4fd58d0647ebed4'
 admin_pass = '1c51db079f8065b9c51e5dd75edacc209a6e86686647f47de2f4494ce1f3509a'
 rand_keys = []
+user_agents = load(open('user-agents.json'))
 
 def convert_to_mbasic(url: str) -> str:
     ext = extract(url)
@@ -189,3 +191,13 @@ def get_session_key(username, password):
     rand = ''.join(choices(ascii_letters + digits, k=20))
     rand_keys.append(rand)
     return b64encode((hash_string(username) + ':' + hash_string(password) + ':' + rand).encode()).decode()
+
+def get_ua():
+    browser = choice(list(user_agents))
+    ua_list = user_agents[browser]
+    ua = choice(ua_list)
+    return ua
+
+def ping_with_ua(cookie):
+    resp = get('https://mbasic.facebook.com/', headers={'User-Agent': get_ua()}, cookies=convert_to_dict(cookie))
+    return resp.text

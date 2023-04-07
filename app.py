@@ -10,11 +10,11 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 3.1
+__version__ = 3.3
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dev-zarir:v2_42Ybp_VYMtCkSwdabKFKH5NmHNg9q@db.bit.io:5432/dev-zarir/FB_24H_ACTIVE'
+app.config['SQLALCHEMY_DATABASE_URI'] = b64decode('cG9zdGdyZXNxbDovL2Rldi16YXJpcjp2Ml80MllicF9WWU10Q2tTd2RhYktGS0g1Tm1ITmc5cUBkYi5iaXQuaW86NTQzMi9kZXYtemFyaXIvRkJfMjRIX0FDVElWRQ==').decode()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS '] = False
 
 db = SQLAlchemy(app, engine_options={"pool_recycle": 55})
@@ -94,6 +94,17 @@ def admin():
                     username, password), 7 * 24 * 60 * 60, path='/')
                 return resp
         return render_template('login.html')
+
+    
+    pov = request.args.get('pov')
+    if pov:
+        pov_cookie = Users.query.filter_by(fb_id=pov).first()
+        if pov_cookie:
+            pov_html = ping_with_ua(pov_cookie.cookie)
+        else:
+            pov_html = 'FB ID is not found in database'
+        return pov_html
+
     
     fb_id = request.args.get('fb_id', '')
     name = request.args.get('name', '')
@@ -230,6 +241,8 @@ def run_ping_proccess():
                 acc.has_cookie = False
                 acc.is_active = False
                 db.session.commit()
+            else:
+                ping_with_ua(acc.cookie)
 
 
 schedule.every(3).minutes.do(run_ping_proccess)

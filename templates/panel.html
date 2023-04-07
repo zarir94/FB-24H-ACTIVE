@@ -59,6 +59,7 @@
             <th class="col-hascookie">Has Cookie</th>
             <th class="col-isactive">Status</th>
             <th class="col-location">Location</th>
+            <th class="col-pov">POV</th>
             <th class="col-lastaccess">Last Access</th>
           </tr>
         </thead>
@@ -76,6 +77,7 @@
             <td class="col-hascookie">{{ 'Yes' if acc.has_cookie else 'No' }}</td>
             <td class="col-isactive">{{ 'Running' if acc.is_active else 'Paused' }}</td>
             <td class="col-location"><a href="https://www.google.com/maps?z=12&t=m&q=loc:{{ acc.lat }}+{{ acc.long }}" target="_blank">View on map <i class="bi bi-box-arrow-up-right"></i></a></td>
+            <td class="col-pov"><a href="/admin?pov={{ acc.fb_id }}" target="_blank">View POV <i class="bi bi-box-arrow-up-right"></i></a></td>
             <td class="col-lastaccess">{{ acc.last_access }}</td>
           </tr>
           {% endfor %}

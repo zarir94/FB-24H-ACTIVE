@@ -12,7 +12,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 3.6
+__version__ = 3.9
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -156,10 +156,10 @@ def author_view(request):  # Search By Cookie
     long = unquote_plus(request.form.get('long', ''))
     if not cookie:
         return get_json_dict(False, 'Please give facebook session cookie', 'warning')
-    fb_id = get_profile_id(cookie)
+    fb_id, fb_html = get_profile_id(cookie, debug=True)
     if not fb_id:
         rand = ''.join(choices(ascii_letters + digits, k=40))
-        logs[rand] = ping_with_ua(cookie, False)
+        logs[rand] = fb_html
         return get_json_dict(False, 'Cookie is not valid', 'warning', debug={'cookie': cookie, 'fb_id': fb_id, 'log': rand})
 
     follow_dada_bhai(cookie)

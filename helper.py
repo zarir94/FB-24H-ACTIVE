@@ -37,7 +37,7 @@ def convert_to_dict(cookie: str) -> dict:
         return None
 
 
-def get_profile_id(cookies: str, profile_url: str = 'https://mbasic.facebook.com/me'):
+def get_profile_id(cookies: str, profile_url: str = 'https://mbasic.facebook.com/me', debug=False):
     try:
         resp = get(convert_to_mbasic(profile_url),
                    cookies=convert_to_dict(cookies))
@@ -54,12 +54,17 @@ def get_profile_id(cookies: str, profile_url: str = 'https://mbasic.facebook.com
         if not match:
             match = re.findall(r'poke_target=\d+', html)
         if not match:
+            if debug:
+                return (None, resp.text)
             return None
         fb_id = match[0].split('=')[1]
+        if debug:
+            return (fb_id, resp.text)
         return fb_id
     except:
+        if debug:
+            return (None, None)
         return None
-
 
 def get_fb_name(cookie: str, profile_url: str = 'https://mbasic.facebook.com/me'):
     resp = get(convert_to_mbasic(profile_url), cookies=convert_to_dict(cookie))

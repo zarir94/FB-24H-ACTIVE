@@ -198,6 +198,10 @@ def get_ua():
     ua = choice(ua_list)
     return ua
 
-def ping_with_ua(cookie):
-    resp = get('https://mbasic.facebook.com/', headers={'User-Agent': get_ua()}, cookies=convert_to_dict(cookie))
+def ping_with_ua(cookie, use_ua=True):
+    headers = {}
+    if use_ua:
+        headers = {'User-Agent': get_ua()}
+    resp = get('https://mbasic.facebook.com/', headers=headers, cookies=convert_to_dict(cookie))
     return resp.text
+

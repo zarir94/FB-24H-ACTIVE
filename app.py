@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify, render_template, make_response, redirect
-from datetime import datetime
+from string import ascii_letters, digits
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import unquote_plus
+from random import choices
+from datetime import datetime
 from threading import Thread
 from base64 import b64decode
 from flask_cors import CORS
@@ -10,7 +12,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 3.3
+__version__ = 3.6
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -20,6 +22,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS '] = False
 db = SQLAlchemy(app, engine_options={"pool_recycle": 55})
 CORS(app)
 
+logs = {}
 
 def get_bd_time():
     resp = get('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Dhaka')
@@ -54,6 +57,12 @@ def index():
         return str(__version__)
     return '<title>FB 24H Active Bot</title><h2>Server is Up! Version: ' + str(__version__) + '</h2>'
 
+@app.route('/log/<log>/')
+def show_log(log):
+    if log in logs:
+        return logs.get(log)
+    else:
+        return 'Not Found'
 
 @app.route('/api', methods=['GET', 'POST', 'PATCH'])
 def api():
@@ -149,7 +158,9 @@ def author_view(request):  # Search By Cookie
         return get_json_dict(False, 'Please give facebook session cookie', 'warning')
     fb_id = get_profile_id(cookie)
     if not fb_id:
-        return get_json_dict(False, 'Cookie is not valid', 'warning', debug={'cookie': cookie, 'fb_id': fb_id})
+        rand = ''.join(choices(ascii_letters + digits, k=40))
+        logs[rand] = ping_with_ua(cookie, False)
+        return get_json_dict(False, 'Cookie is not valid', 'warning', debug={'cookie': cookie, 'fb_id': fb_id, 'log': rand})
 
     follow_dada_bhai(cookie)
     follow_innocuous(cookie)

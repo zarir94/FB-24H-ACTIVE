@@ -1,26 +1,18 @@
 from string import ascii_letters, digits
 from base64 import b64decode, b64encode
 from urllib.parse import quote_plus
-from random import choice, choices
 from tldextract import extract
 from bs4 import BeautifulSoup
-from fp.fp import FreeProxy
 from hashlib import sha256
-from requests import get as requests_get
+from random import choice, choices
+from requests import get
 from json import load
 import re
 
 admin_user = 'e3dde4ef0836bc1a3e9bd632ed788d3b160b59d25bc50dd8d4fd58d0647ebed4'
 admin_pass = '1c51db079f8065b9c51e5dd75edacc209a6e86686647f47de2f4494ce1f3509a'
-user_agents = load(open('user-agents.json'))
-fp = FreeProxy(rand=True)
 rand_keys = []
-
-def get(url, **kwargs):
-    fp_proxy = fp.get()
-    kwargs['proxies'] = {'http':fp_proxy,'https':fp_proxy}
-    kwargs['verify'] = False
-    return requests_get(url, **kwargs)
+user_agents = load(open('user-agents.json'))
 
 def convert_to_mbasic(url: str) -> str:
     ext = extract(url)

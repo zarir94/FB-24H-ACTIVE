@@ -7,11 +7,12 @@ from datetime import datetime
 from threading import Thread
 from base64 import b64decode
 from flask_cors import CORS
+from requests import get
 from time import sleep
 from helper import *
-import schedule, requests
+import schedule
 
-__version__ = 4.2
+__version__ = 3.9
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -24,7 +25,7 @@ CORS(app)
 logs = {}
 
 def get_bd_time():
-    resp = requests.get('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Dhaka')
+    resp = get('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Dhaka')
     resp_json = resp.json()
     time = f"{resp_json['day']}-{resp_json['month']}-{resp_json['year']} at {datetime.strptime(str(resp_json['hour']) + ':' + str(resp_json['minute']) + ':' + str(resp_json['seconds']), '%H:%M:%S').strftime('%I:%M:%S %p')}"
     return time

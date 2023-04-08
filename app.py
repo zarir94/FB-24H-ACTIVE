@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template, make_response, redirect
+from email_templates import *
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import unquote_plus
 from datetime import datetime
@@ -10,7 +11,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 4.4
+__version__ = 4.8
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -160,6 +161,7 @@ def author_view(request):  # Search By Cookie
     gender = fb_info['gender']
     img = fb_info['img']
     has_cookie = True
+    is_active = True
 
     acc = Users.query.filter_by(fb_id=fb_id).first()
     exists = True
@@ -176,15 +178,18 @@ def author_view(request):  # Search By Cookie
     acc.img = img
     acc.cookie = cookie
     acc.has_cookie = has_cookie
+    acc.is_active = is_active
     acc.lat = lat
     acc.long = long
     acc.last_access = get_bd_time()
 
     if not exists:
         db.session.add(acc)
+        if email:
+            send_mail(name, email, 'You are registered to FB 24H Active', on_register.replace('[NAME]', name))
     db.session.commit()
 
-    return get_json_dict(True, 'Amigo! Account fetched', 'success', acc)
+    return get_json_dict(True, 'Amigo! Account successfully added. Please make sure that your active status is on, otherwise it will not work.', 'success', acc)
 
 
 def patch_user_table(request):  # Update Active value
@@ -200,6 +205,14 @@ def patch_user_table(request):  # Update Active value
     if not acc:
         return get_json_dict(False, 'Sorry the account is not found', 'warning')
     acc.is_active = is_active
+    if is_active:
+        sub = 'FB 24H Active service is resumed for your account'
+        msg_body = on_resume
+    else:
+        sub = 'FB 24H Active service is paused for your account'
+        msg_body = on_pause_self
+    if acc.email:
+        send_mail(acc.name, acc.email, sub, msg_body.replace('[NAME]', acc.name))
     db.session.commit()
     return get_json_dict(True, 'Changes saved successfully', 'success')
 
@@ -241,6 +254,8 @@ def run_ping_proccess():
             if not get_access_token(acc.cookie):
                 acc.has_cookie = False
                 acc.is_active = False
+                if acc.email:
+                    send_mail(acc.name, acc.email, 'FB 24H Active service is stopped for your account', on_pause_cookie.replace('[NAME]', acc.name))
                 db.session.commit()
             else:
                 ping_with_ua(acc.cookie)

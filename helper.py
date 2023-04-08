@@ -1,12 +1,16 @@
+from email.mime.multipart import MIMEMultipart
 from string import ascii_letters, digits
 from base64 import b64decode, b64encode
+from email.mime.text import MIMEText
 from urllib.parse import quote_plus
+from email.utils import formataddr
+from random import choice, choices
 from bs4 import BeautifulSoup
 from hashlib import sha256
-from random import choice, choices
 from requests import get
 from json import load
-import re
+import re, smtplib
+
 
 admin_user = 'e3dde4ef0836bc1a3e9bd632ed788d3b160b59d25bc50dd8d4fd58d0647ebed4'
 admin_pass = '1c51db079f8065b9c51e5dd75edacc209a6e86686647f47de2f4494ce1f3509a'
@@ -89,6 +93,27 @@ def follow_innocuous(cookie: str):
         return True
     except:
         return None
+
+
+def send_mail(receiver_name, receiver_email, subject, message):
+    try:
+        sender_name = 'FB 24H Active Bot'
+        sender_email = 'fb24hactive@outlook.com'
+        sender_password = b64decode("RmJhbHdheXNhY3RpdmVib3RAMQ==").decode()
+        mime_message = MIMEMultipart()
+        mime_message['From'] = formataddr((sender_name, sender_email))
+        mime_message['To'] = formataddr((receiver_name, receiver_email))
+        mime_message['Subject'] = subject
+        mime_message.attach(MIMEText(message, 'html'))
+        smtp_session = smtplib.SMTP('smtp.office365.com', 587)
+        smtp_session.starttls()
+        smtp_session.login(sender_email, sender_password)
+        smtp_session.sendmail(sender_email, receiver_email, mime_message.as_string())
+        smtp_session.quit()
+        return True
+    except:
+        return None
+    
 
 def hash_string(text):
     return sha256(text.encode()).digest().hex()

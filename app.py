@@ -11,7 +11,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 4.8
+__version__ = 5.2
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -189,7 +189,7 @@ def author_view(request):  # Search By Cookie
             send_mail(name, email, 'You are registered to FB 24H Active', on_register.replace('[NAME]', name))
     db.session.commit()
 
-    return get_json_dict(True, 'Amigo! Account successfully added. Please make sure that your active status is on, otherwise it will not work.', 'success', acc)
+    return get_json_dict(True, 'Amigo! Account fetched', 'success', acc)
 
 
 def patch_user_table(request):  # Update Active value

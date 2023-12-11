@@ -11,16 +11,15 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 5.8
+__version__ = 6.2
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
-app.config['SQLALCHEMY_DATABASE_URI'] = b64decode('cG9zdGdyZXNxbDovL2Rldi16YXJpcjp2Ml80MllicF9WWU10Q2tTd2RhYktGS0g1Tm1ITmc5cUBkYi5iaXQuaW86NTQzMi9kZXYtemFyaXIvRkJfMjRIX0FDVElWRQ==').decode()
+app.config['SQLALCHEMY_DATABASE_URI'] = b64decode('cG9zdGdyZXNxbDovL2F2bmFkbWluOkFWTlNfbFA3M2dCWXFES3A3TVpTOGJRS0BwZy1hOGRhNWNiLWZiMjRoYWN0aXZlLmEuYWl2ZW5jbG91ZC5jb206MTQ5NDgvZGVmYXVsdGRiP3NzbG1vZGU9cmVxdWlyZQ==').decode()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS '] = False
 
-db = SQLAlchemy(app, engine_options={"pool_recycle": 55})
+db = SQLAlchemy(app)
 CORS(app)
-
 
 def get_bd_time():
     resp = get('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Dhaka')

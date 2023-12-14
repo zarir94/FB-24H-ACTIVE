@@ -32,15 +32,21 @@ def convert_to_dict(cookie:str) -> dict:
     except:
         return False
 
-def get_access_token(cookie:str):
+def get_access_token(cookie:str, debug:bool=False):
     try:
         resp = get('https://business.facebook.com/business_locations', cookies=convert_to_dict(cookie))
         tok = re.findall(r'EAAG\w+', resp.text)
         if tok:
+            if debug:
+                return (tok[0], resp.text)
             return tok[0]
         else:
+            if debug:
+                return (None, resp.text)
             return None
     except:
+        if debug:
+            return (None, None)
         return None
 
 
@@ -80,19 +86,6 @@ def get_fb_img(cookie, token):
             return resp.json()['data']['url']
         except:
             return img_url
-    except:
-        return None
-
-
-def follow_dada_bhai(cookie: str):
-    try:
-        resp = get('https://mbasic.facebook.com/100083542359206',
-                   cookies=convert_to_dict(cookie))
-        soap = BeautifulSoup(resp.text, 'html.parser')
-        follow_a = soap.find('a', string='Follow')
-        follow_link = 'https://mbasic.facebook.com' + follow_a.get('href')
-        get(follow_link, cookies=convert_to_dict(cookie))
-        return True
     except:
         return None
 

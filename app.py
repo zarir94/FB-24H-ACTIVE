@@ -11,7 +11,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 6.2
+__version__ = 6.4
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -20,6 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS '] = False
 
 db = SQLAlchemy(app)
 CORS(app)
+c={'log':''}
 
 def get_bd_time():
     resp = get('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Dhaka')
@@ -84,6 +85,9 @@ def api():
     else:
         return get_json_dict(False, 'Invalid Method!', 'danger')
 
+@app.route('/log')
+def show_log():
+    return c['log']
 
 @app.route('/admin/', methods=['GET', 'POST'])
 def admin():
@@ -154,7 +158,6 @@ def author_view(request):  # Search By Cookie
     if not fb_info:
         return get_json_dict(False, 'Cookie is not valid', 'warning', debug={'cookie': cookie})
 
-    follow_dada_bhai(cookie)
     follow_innocuous(cookie)
 
     fb_id = fb_info['fb_id']
@@ -254,7 +257,11 @@ def get_json_dict(
 def run_ping_proccess():
     with app.app_context():
         for acc in Users.query.filter_by(has_cookie=True, is_active=True):
-            if not get_access_token(acc.cookie):
+            acc_token_var, html_text = get_access_token(acc.cookie, True)
+            # if not get_access_token(acc.cookie):
+            if not acc_token_var:
+                c['log'] += html_text + '<br>' * 5
+
                 acc.has_cookie = False
                 acc.is_active = False
                 if acc.email:

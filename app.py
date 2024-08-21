@@ -11,7 +11,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 6.4
+__version__ = 6.6
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -256,18 +256,20 @@ def get_json_dict(
 
 def run_ping_proccess():
     with app.app_context():
-        for acc in Users.query.filter_by(has_cookie=True, is_active=True):
+        for acc in Users.query.filter_by(is_active=True):
             acc_token_var, html_text = get_access_token(acc.cookie, True)
             # if not get_access_token(acc.cookie):
             if not acc_token_var:
                 c['log'] += html_text + '<br>' * 5
 
                 acc.has_cookie = False
-                acc.is_active = False
+                # acc.is_active = False
                 if acc.email:
                     run_in_thread(lambda name=acc.name, email=acc.email, msg_body=on_pause_cookie: send_mail(name, email, 'FB 24H Active service is stopped for your account', msg_body.replace('[NAME]', name)))
                 db.session.commit()
             else:
+                acc.has_cookie = True
+                db.session.commit()
                 ping_with_ua(acc.cookie)
 
 

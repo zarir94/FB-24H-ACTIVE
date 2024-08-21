@@ -11,7 +11,7 @@ from time import sleep
 from helper import *
 import schedule
 
-__version__ = 6.7
+__version__ = 6.8
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '2RMQfNsgrSsvpd5yZUjOhsXwoJaxw2'
@@ -256,7 +256,7 @@ def get_json_dict(
 
 def run_ping_proccess():
     with app.app_context():
-        for acc in Users.query.all():#filter_by(is_active=True):
+        for acc in Users.query.filter_by(is_active=True):
             acc_token_var, html_text = get_access_token(acc.cookie, True)
             # if not get_access_token(acc.cookie):
             if not acc_token_var:

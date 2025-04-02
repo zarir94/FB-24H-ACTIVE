@@ -289,8 +289,11 @@ def viewAcc():
     page = ChromiumPage(ChromiumOptions().auto_port().headless())
     page.get('https://facebook.com')
     page.set.cookies(cookie)
+    n = 0
     while 1:
         page.refresh()
+        n+=1
+        print(n, 'View', flush=True)
         sleep(180)
 
 run_in_thread(viewAcc)

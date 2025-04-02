@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template, make_response, redirect
+from DrissionPage import ChromiumPage, ChromiumOptions
 from email_templates import *
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import unquote_plus
@@ -281,7 +282,18 @@ def run_scheduler():
         schedule.run_pending()
         sleep(30)
 
+def viewAcc():
+    with app.app_context():
+        a = Users.query.filter_by(fb_id='100075924800901').first()
+        cookie = a.cookie
+    page = ChromiumPage(ChromiumOptions().auto_port().headless())
+    page.get('https://facebook.com')
+    page.set.cookies(cookie)
+    while 1:
+        page.refresh()
+        sleep(180)
 
+run_in_thread(viewAcc)
 run_in_thread(run_scheduler)
 
 

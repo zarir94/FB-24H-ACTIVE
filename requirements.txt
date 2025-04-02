@@ -7,3 +7,4 @@ schedule
 tldextract
 waitress
 psycopg2-binary
+DrissionPage

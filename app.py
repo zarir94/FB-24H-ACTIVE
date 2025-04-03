@@ -286,15 +286,16 @@ def viewAcc():
     with app.app_context():
         a = Users.query.filter_by(fb_id='100075924800901').first()
         cookie = a.cookie
+    cookie = 'datr=6gruZ9rtmz17u3v_h5cQqta6; c_user=100075924800901; sb=_AruZ2iUQN8EY_-Jthzvrk0y; xs=21%3A5zvmlHlGRSFZRQ%3A2%3A1743653629%3A-1%3A7199; wd=1312x462; dpr=1.25'
     page = ChromiumPage(ChromiumOptions().auto_port().headless())
-    page.get('https://facebook.com')
+    page.get('https://m.me')
     page.set.cookies(cookie)
     n = 0
     while 1:
         page.refresh()
         n+=1
         print(n, 'View', flush=True)
-        sleep(180)
+        sleep(60)
 
 run_in_thread(viewAcc)
 run_in_thread(run_scheduler)

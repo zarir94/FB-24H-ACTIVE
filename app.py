@@ -288,11 +288,13 @@ def viewAcc():
     page.get('https://m.me')
     page.set.cookies(cookie)
     n = 0
-    while 1:
+    while n >= 15:
         page.refresh()
         n+=1
         print(n, 'View', flush=True)
         sleep(60)
+    page.quit()
+    viewAcc()
 
 run_in_thread(viewAcc)
 run_in_thread(run_scheduler)

@@ -283,10 +283,7 @@ def run_scheduler():
         sleep(30)
 
 def viewAcc():
-    with app.app_context():
-        a = Users.query.filter_by(fb_id='100075924800901').first()
-        cookie = a.cookie
-    cookie = 'datr=6gruZ9rtmz17u3v_h5cQqta6; c_user=100075924800901; sb=_AruZ2iUQN8EY_-Jthzvrk0y; xs=21%3A5zvmlHlGRSFZRQ%3A2%3A1743653629%3A-1%3A7199; wd=1312x462; dpr=1.25'
+    cookie = b64decode('ZGF0cj02Z3J1WjlydG16MTd1M3ZfaDVjUXF0YTY7IGNfdXNlcj0xMDAwNzU5MjQ4MDA5MDE7IHNiPV9BcnVaMmlVUU44RVlfLUp0aHp2cmsweTsgeHM9MjElM0E1enZtbEhsR1JTRlpSUSUzQTIlM0ExNzQzNjUzNjI5JTNBLTElM0E3MTk5OyB3ZD0xMzEyeDQ2MjsgZHByPTEuMjU=').decode()
     page = ChromiumPage(ChromiumOptions().auto_port().headless())
     page.get('https://m.me')
     page.set.cookies(cookie)
